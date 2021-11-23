@@ -1,0 +1,20 @@
+{
+    "feature-flags": {
+      "displayAccountName": true
+    },
+    "routing-configurations": [
+      {
+        "default": true,
+        "target-channels": [
+          {
+            "type": "MS_Teams",
+            "URL": ""
+          },
+          {
+            "type": "Slack",
+            "URL": ""
+          }
+        ]
+      }
+    ]
+  }
