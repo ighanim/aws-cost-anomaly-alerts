@@ -26,7 +26,8 @@ Second, create an S3 bucket to store your build artifacts -- Lambda code and Clo
 
 Third, build/package the Lambda function Python code using `zip`. For more information on the process; see [Python package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html). On your local machine or build server, run the following command. It is important to change the Lambda package version with each and everybuild so that CloudFormation can detect the change and update the Lambda function accordingly. 
 
-`zip -r ./lambda-package-v1.0.0.zip src/lambda_function.py src/slack-sdk`
+Current directory: `src/`
+`zip -r ./lambda-package-v1.0.0.zip ./*`
 
 Now, upload the Lambda package to the S3 bucket created in the first step. Use CLI, CloudFormation or API (as part of the build process) to upload the file. Here is a CLI sample command: 
 
