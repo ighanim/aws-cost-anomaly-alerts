@@ -5,25 +5,10 @@ Resources:
 #| Resource                          | Type                    | Description                                      |
 #|------------------------------     |-------------------------|--------------------------------------------------|
 #| GetSecretValueLambdaPolicy        | AWS::IAM::ManagedPolicy | IAM policy with GetSecretValue value permissions |
-#| CostAnomalyToSlackLambdaRole      | AWS::IAM::Role          | IAM Role associated with the Lambda Functions    |
+#| CostAnomalyAlertsLambdaRole      | AWS::IAM::Role          | IAM Role associated with the Lambda Functions    |
 #| DescribeAccountNameLambdaPolicy   | AWS::IAM::ManagedPolicy | IAM policy to DescribeAccount Name               |
 #| ReadAppConfigLambdaPolicy         | AWS::IAM::ManagedPolicy | A Policy to read AppConfig configurations        |
  
-  GetSecretValueLambdaPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Action:
-          - secretsmanager:GetSecretValue
-          Resource: "*"
-          Condition:
-            StringEquals:
-             'secretsmanager:SecretId': !Ref SlackWebhookURLSecret
-      Roles:
-      - Ref: CostAnomalyToSlackLambdaRole
   ReadAppConfigLambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -35,7 +20,7 @@ Resources:
           - appconfig:GetConfiguration
           Resource: "*"
       Roles:
-      - Ref: CostAnomalyToSlackLambdaRole  
+      - Ref: CostAnomalyAlertsLambdaRole  
   DescribeAccountNameLambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
     Condition: displayAccountNameEnabled
@@ -48,8 +33,8 @@ Resources:
           - organizations:DescribeAccount
           Resource: "arn:aws:organizations::*:account/o-*/*"
       Roles:
-      - Ref: CostAnomalyToSlackLambdaRole     
-  CostAnomalyToSlackLambdaRole:
+      - Ref: CostAnomalyAlertsLambdaRole     
+  CostAnomalyAlertsLambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -66,7 +51,7 @@ Resources:
       Path: "/"
       Tags:
       - Key: Project
-        Value: CostAnomalyToSlack
+        Value: CostAnomalyAlerts
 
 
 #| Resource                  | Type                  | Description                                                                     |
@@ -78,13 +63,13 @@ Resources:
     Type: AWS::SNS::Topic
     Properties:
       Subscription:
-      - Endpoint: !Ref CostAnomalyToSlackLambdaAliasProd
+      - Endpoint: !Ref CostAnomalyAlertsLambdaAliasProd
         Protocol: lambda
       Tags:
       - Key: Project
-        Value: CostAnomalyToSlack
+        Value: CostAnomalyAlerts
     DependsOn:
-    - CostAnomalyToSlackLambda
+    - CostAnomalyAlertsLambda
   SnsTopicPolicyCostAnomaly:
     Type: AWS::SNS::TopicPolicy
     Properties: 
@@ -114,7 +99,7 @@ Resources:
               "Resource": !Ref SnsTopicCostAnomaly,
               "Condition": {
                 "StringEquals": {
-                  "lambda:FunctionArn": !Ref CostAnomalyToSlackLambdaAliasProd
+                  "lambda:FunctionArn": !Ref CostAnomalyAlertsLambdaAliasProd
                 }
 
               }
@@ -127,109 +112,95 @@ Resources:
 
 #| Resource                              | Type                    | Description                                            |
 #|---------------------------------------|-------------------------|--------------------------------------------------------|
-#| CostAnomalyToSlackLambda              | AWS::Lambda::Function   | Main Lambda Function that will call Slack Webhooks API |
-#| CostAnomalyToSlackLambdaSnsPermission | AWS::Lambda::Permission | Permission for SNS to invoke CostAnomalyToSlackLambda  |
-#| CostAnomalyToSlackLambdaVersion       | AWS::Lambda::Version    | A new Lambda Version. For a new version to be deployed, the logical resource name must be changed. |
-#| CostAnomalyToSlackLambdaAliasProd     | AWS::Lambda::Alias      | An alias to route traffic to route to one of the Lambda versions.                                  |
+#| CostAnomalyAlertsLambda              | AWS::Lambda::Function   | Main Lambda Function that will call Slack Webhooks API |
+#| CostAnomalyAlertsLambdaSnsPermission | AWS::Lambda::Permission | Permission for SNS to invoke CostAnomalyAlertsLambda  |
+#| CostAnomalyAlertsLambdaVersion       | AWS::Lambda::Version    | A new Lambda Version. For a new version to be deployed, the logical resource name must be changed. |
+#| CostAnomalyAlertsLambdaAliasProd     | AWS::Lambda::Alias      | An alias to route traffic to route to one of the Lambda versions.                                  |
 
-  CostAnomalyToSlackLambda:
+  CostAnomalyAlertsLambda:
     Type: AWS::Lambda::Function
     Properties:
       Code:
         S3Bucket:
           Ref: s3Bucket
         S3Key: !Ref codePackage
-      Description: Lambda Function to Send Cost Anomaly Events to Slack Webhook
+      Description: Lambda Function to Send Cost Anomaly Alerts to different channels
       Handler: lambda_function.lambda_handler
       Role:
         Fn::GetAtt:
-        - CostAnomalyToSlackLambdaRole
+        - CostAnomalyAlertsLambdaRole
         - Arn
       Runtime: python3.7
-      Environment:
-        Variables:
-          SLACK_WEBHOOK_URL: !Ref SlackWebhookURLSecret
       Layers: 
       - !FindInMap [AppConfigLayerArn, !Ref "AWS::Region", AppConfigLayerArn]
       Tags:
       - Key: Project
-        Value: CostAnomalyToSlack
-  CostAnomalyToSlackLambdaVersion:
+        Value: CostAnomalyAlerts
+  CostAnomalyAlertsLambdaVersion:
     Type: AWS::Lambda::Version
     DeletionPolicy: Retain
     Properties: 
-      FunctionName: !GetAtt CostAnomalyToSlackLambda.Arn
-  CostAnomalyToSlackLambdaAliasProd:
+      FunctionName: !GetAtt CostAnomalyAlertsLambda.Arn
+  CostAnomalyAlertsLambdaAliasProd:
     Type: AWS::Lambda::Alias
     Properties: 
-      FunctionName: !GetAtt CostAnomalyToSlackLambda.Arn
-      FunctionVersion: !GetAtt CostAnomalyToSlackLambdaVersion.Version
+      FunctionName: !GetAtt CostAnomalyAlertsLambda.Arn
+      FunctionVersion: !GetAtt CostAnomalyAlertsLambdaVersion.Version
       Name: prod
-  CostAnomalyToSlackLambdaSnsPermission:
+  CostAnomalyAlertsLambdaSnsPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
       Principal: sns.amazonaws.com
       SourceArn:
         Ref: SnsTopicCostAnomaly
-      FunctionName: !Ref CostAnomalyToSlackLambdaAliasProd
+      FunctionName: !Ref CostAnomalyAlertsLambdaAliasProd
 
 #| Resource              | Type                        | Description                            |
 #|-----------------------|-----------------------------|----------------------------------------|
-#| SlackWebhookURLSecret | AWS::SecretsManager::Secret | Secret storing the Slack webhook URL.  |
+#| CostAnomalyAlertsApplication | AWS::AppConfig::Application | App Config Application.  |
   
-  SlackWebhookURLSecret:        
-    Type: AWS::SecretsManager::Secret
-    Properties: 
-      Name: !Join [ "-", [ !Ref AWS::StackName, anomaly-detection-slack-webhook-url ] ] 
-      SecretString: !Sub
-      - '{"anomaly-detection-slack-webhook-url": "${secret}"}'
-      - { secret: !Ref slackWebhookURL }  
-      Tags: 
-      - Key: Project
-        Value: CostAnomalyToSlack
-  CostAnomlayToSlackApplication:
+  CostAnomalyAlertsApplication:
     Type: AWS::AppConfig::Application
     Properties: 
-      Description: Cost Anomaly to Slack AppConfig Application
-      Name: cost-anomaly-to-slack-application
+      Description: Cost Anomaly Alerts AppConfig Application
+      Name: cost-anomaly-to-alerts-application
       Tags: 
       - Key: Project
-        Value: CostAnomalyToSlack
-  CostAnomalyToSlackgEnvironment:
+        Value: CostAnomalyAlerts
+  CostAnomalyAlertsgEnvironment:
     Type: AWS::AppConfig::Environment
     Properties: 
-      ApplicationId: !Ref CostAnomlayToSlackApplication
-      Name: cost-anomaly-to-slack-environment
-      Description: Cost Anomaly to Slack AppConfig Application Environment
+      ApplicationId: !Ref CostAnomalyAlertsApplication
+      Name: cost-anomaly-alerts-environment
+      Description: Cost Anomaly to Alerts AppConfig Application Environment
       Tags: 
       - Key: Project
-        Value: CostAnomalyToSlack
-  CostAnomalyToSlackConfigProfile:
+        Value: CostAnomalyAlerts
+  CostAnomalyAlertsConfigProfile:
     Type: AWS::AppConfig::ConfigurationProfile
     Properties: 
-      ApplicationId: !Ref CostAnomlayToSlackApplication
-      Name: cost-anomaly-to-slack-configuration-profile
-      Description: Cost Anomaly to Slack AppConfig Application Environment
+      ApplicationId: !Ref CostAnomalyAlertsApplication
+      Name: cost-anomaly-alerts-configuration-profile
+      Description: Cost Anomaly Alerts AppConfig Application Environment
       LocationUri: hosted
       Tags: 
       - Key: Project
-        Value: CostAnomalyToSlack       
-  CostAnomalyToSlackConfigVersion:
+        Value: CostAnomalyAlerts       
+  CostAnomalyAlertsConfigVersion:
     Type: AWS::AppConfig::HostedConfigurationVersion
     Properties:
-      ApplicationId: !Ref CostAnomlayToSlackApplication
-      ConfigurationProfileId: !Ref CostAnomalyToSlackConfigProfile
-      Description: 'A sample hosted configuration version'
-      Content: !Sub 
-      - '{"feature-flags": {"displayAccountName": ${displayAccountNameValueBoolean}}}'
+      ApplicationId: !Ref CostAnomalyAlertsApplication
+      ConfigurationProfileId: !Ref CostAnomalyAlertsConfigProfile
+      Content: !Sub
+      - '{"feature-flags":{"displayAccountName":${displayAccountNameValueBoolean}},"routing-configurations":[{"default":true,"target-channels":[{"type":"MS_Teams","URL":""},{"type":"Slack","URL":""}]}]}'
       - displayAccountNameValueBoolean: !Ref displayAccountName
       ContentType: 'application/json'
-  CostAnomalyToSlackDeploymemtStrategy:    
+  CostAnomalyAlertsDeploymemtStrategy:    
     Type: AWS::AppConfig::DeploymentStrategy
     Properties: 
-      Name: cost-anomaly-to-slack-deployment-strategy
-      Description: Cost Anomaly to Slack Deployment Strategy
+      Name: cost-anomaly-alerts-deployment-strategy
+      Description: Cost Anomaly Alerts Deployment Strategy
       DeploymentDurationInMinutes: 1
       FinalBakeTimeInMinutes: 1
       GrowthFactor: 100
@@ -237,19 +208,19 @@ Resources:
       ReplicateTo: NONE
       Tags: 
       - Key: Project
-        Value: CostAnomalyToSlack 
-  CostAnomalyToSlackDeploymemt:      
+        Value: CostAnomalyAlerts 
+  CostAnomalyAlertsDeploymemt:      
     Type: AWS::AppConfig::Deployment
     Properties: 
-      ApplicationId: !Ref CostAnomlayToSlackApplication
-      ConfigurationProfileId: !Ref CostAnomalyToSlackConfigProfile
-      ConfigurationVersion: !Ref CostAnomalyToSlackConfigVersion
-      DeploymentStrategyId: !Ref CostAnomalyToSlackDeploymemtStrategy
-      Description: Cost Anomaly to Slack Deployment
-      EnvironmentId: !Ref CostAnomalyToSlackgEnvironment
+      ApplicationId: !Ref CostAnomalyAlertsApplication
+      ConfigurationProfileId: !Ref CostAnomalyAlertsConfigProfile
+      ConfigurationVersion: !Ref CostAnomalyAlertsConfigVersion
+      DeploymentStrategyId: !Ref CostAnomalyAlertsDeploymemtStrategy
+      Description: Cost Anomaly Alerts Deployment
+      EnvironmentId: !Ref CostAnomalyAlertsgEnvironment
       Tags: 
       - Key: Project
-        Value: CostAnomalyToSlack
+        Value: CostAnomalyAlerts
     
 #| Parameter       | Type   | Description                                                                                               |
 #|-----------------|--------|-----------------------------------------------------------------------------------------------------------|
@@ -258,25 +229,25 @@ Resources:
 #| slackWebhookURL | String | Slack channel webhook URL. If you don't have one already, check https://api.slack.com/messaging/webhooks. |
 
 Parameters:
-#  sourceAccount:
-#    Type: String
-#    Description: Enter the 11-digit AWS Account Number of the cost anomaly notification subscription. If you would like to aggregate data across all of your accounts, enter the Payer/Management account number. Else, if you would like to receive notifications of a specific member account (be it this account), enter the account number. 
   s3Bucket:
     Type: String
     Description: S3 Bucket where your Lambda functions and StepFunctions state machines    are stored.
   codePackage:
     Type: String
     Description: S3 key for the Lambda Code. 
-  slackWebhookURL:
+  defaultSlackWebhookURL:
     Type: String
-    Description: Slack Webhook URL.
-  displayAccountName:
+    Description: Default Slack Webhook URL.
+  defaultTeamsWebhookURL:
+    Type: String
+    Description: Default Teams Webhook URL.
+  FeatureFlagDisplayAccountName:
     Type: String
     Default: true
     AllowedValues:
       - true
       - false
-    Description: Select whether to display Account Name in the Slack Notification or not. This will require special permissions for the Lambda function to access the Organisations API.
+    Description: Select whether to display Account Name in the Notification or not. This will require special permissions for the Lambda function to access the Organisations API.
 
 Conditions:
   displayAccountNameEnabled: !Equals 
