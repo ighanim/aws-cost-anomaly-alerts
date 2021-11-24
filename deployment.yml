@@ -194,7 +194,7 @@ Resources:
       ConfigurationProfileId: !Ref CostAnomalyAlertsConfigProfile
       Content: !Sub
       - '{"feature-flags":{"displayAccountName":${displayAccountNameValueBoolean}},"routing-configurations":[{"default":true,"target-channels":[{"type":"MS_Teams","URL":""},{"type":"Slack","URL":""}]}]}'
-      - displayAccountNameValueBoolean: !Ref displayAccountName
+      - displayAccountNameValueBoolean: !Ref FeatureFlagDisplayAccountName
       ContentType: 'application/json'
   CostAnomalyAlertsDeploymemtStrategy:    
     Type: AWS::AppConfig::DeploymentStrategy
