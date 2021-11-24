@@ -133,6 +133,7 @@ Resources:
       Runtime: python3.7
       Layers: 
       - !FindInMap [AppConfigLayerArn, !Ref "AWS::Region", AppConfigLayerArn]
+      Timeout: 15
       Tags:
       - Key: Project
         Value: CostAnomalyAlerts
@@ -193,8 +194,10 @@ Resources:
       ApplicationId: !Ref CostAnomalyAlertsApplication
       ConfigurationProfileId: !Ref CostAnomalyAlertsConfigProfile
       Content: !Sub
-      - '{"feature-flags":{"displayAccountName":${displayAccountNameValueBoolean}},"routing-configurations":[{"default":true,"target-channels":[{"type":"MS_Teams","URL":""},{"type":"Slack","URL":""}]}]}'
+      - '{"feature-flags":{"displayAccountName":${displayAccountNameValueBoolean}},"routing-configurations":[{"default":true,"target-channels":[{"type":"MS_Teams","URL":${teamsUrlString}},{"type":"Slack","URL":${slackUrlString}}]}]}'
       - displayAccountNameValueBoolean: !Ref FeatureFlagDisplayAccountName
+      - teamsUrlString: !Ref defaultTeamsWebhookURL
+      - slackUrlString: !Ref defaultSlackWebhookURL
       ContentType: 'application/json'
   CostAnomalyAlertsDeploymemtStrategy:    
     Type: AWS::AppConfig::DeploymentStrategy
