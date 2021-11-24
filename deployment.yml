@@ -164,7 +164,7 @@ Resources:
     Type: AWS::AppConfig::Application
     Properties: 
       Description: Cost Anomaly Alerts AppConfig Application
-      Name: cost-anomaly-to-alerts-application
+      Name: cost-anomaly-alerts-application
       Tags: 
       - Key: Project
         Value: CostAnomalyAlerts
