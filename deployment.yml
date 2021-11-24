@@ -251,7 +251,7 @@ Parameters:
 
 Conditions:
   displayAccountNameEnabled: !Equals 
-    - !Ref displayAccountName
+    - !Ref FeatureFlagDisplayAccountName
     - true
 
 Outputs:
