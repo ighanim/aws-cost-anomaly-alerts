@@ -10,7 +10,7 @@ class AppConfigurator:
     
     def get_app_configurations(self):
         ##The function reads the application configurations stored in AppConfig configuration file. AppConfig is integrated as a Layer in the solution. 
-        appconfig_url = f'http://localhost:2772/applications/cost-anomaly-to-alerts-application/environments/cost-anomaly-alerts-environment/configurations/cost-anomaly-alerts-configuration-profile'
+        appconfig_url = f'http://localhost:2772/applications/cost-anomaly-alerts-application/environments/cost-anomaly-alerts-environment/configurations/cost-anomaly-alerts-configuration-profile'
         appconfig_configurations = urllib.request.urlopen(appconfig_url).read()
         config_json = json.loads(appconfig_configurations)
         
