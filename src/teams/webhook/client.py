@@ -1,5 +1,6 @@
 import json
-from botocore.vendored import requests
+#from botocore.vendored import requests
+import requests
 
 class WebhookClient:
     def __init__(self, message, webhook_url):

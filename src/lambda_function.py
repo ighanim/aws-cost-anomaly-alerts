@@ -10,12 +10,14 @@ import os
     
 def lambda_handler(event, context):
     
+    snsEventMessage = json.loads(event["Records"][0]["Sns"]["Message"])
+
     ##Read AppConfig Configurations file including Feature Flags as well as Routing Notifications. 
     ob_app_configurator = AppConfigurator()
     ob_app_configurator.get_app_configurations()
     
     ## Call EventConstructor to build the generic notification structure that is sent across different distribution channels. 
-    anomalyEvent = EventConstructor(event).construct_event(ob_app_configurator)
+    anomalyEvent = EventConstructor(snsEventMessage).construct_event(ob_app_configurator)
     
     ## Call NotificationRouter that is responsible to distribute the notification to different channels. 
     ob_router = NotificationRouter(ob_app_configurator)
