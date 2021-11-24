@@ -196,8 +196,8 @@ Resources:
       Content: !Sub
       - '{"feature-flags":{"displayAccountName":${displayAccountNameValueBoolean}},"routing-configurations":[{"default":true,"target-channels":[{"type":"MS_Teams","URL":${teamsUrlString}},{"type":"Slack","URL":${slackUrlString}}]}]}'
       - displayAccountNameValueBoolean: !Ref FeatureFlagDisplayAccountName
-      - teamsUrlString: !Ref defaultTeamsWebhookURL
-      - slackUrlString: !Ref defaultSlackWebhookURL
+        teamsUrlString: !Ref defaultTeamsWebhookURL
+        slackUrlString: !Ref defaultSlackWebhookURL
       ContentType: 'application/json'
   CostAnomalyAlertsDeploymemtStrategy:    
     Type: AWS::AppConfig::DeploymentStrategy
