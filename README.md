@@ -3,7 +3,7 @@ The project is a plug and play solution to detect cost anomalies in your AWS acc
 
 ### Solution Overview
 
-![alt text](https://github.com/ighanim/aws-cost-anomaly-alerts/blob/main/architecture_dgm.png)
+![alt text](https://github.com/ighanim/aws-cost-anomaly-alerts/blob/development/architecture_dgm.png)
 
 ## Create Notification Channel Webhook
 You may create one or two distribution channels. 
