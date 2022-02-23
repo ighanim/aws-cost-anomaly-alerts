@@ -24,7 +24,12 @@ Second, create an S3 bucket to store your build artifacts -- Lambda code and Clo
 
 ### Build
 
-Third, build/package the Lambda function Python code using `zip`. For more information on the process; see [Python package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html). On your local machine or build server, run the following command. It is important to change the Lambda package version with each and everybuild so that CloudFormation can detect the change and update the Lambda function accordingly. 
+Third, build/package the Lambda function Python code using `zip`. For more information on the process; see [Python package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html). 
+
+On your local machine or build server, install dependencies by using the following command:
+`pip install -r requirements.txt --target src/`
+
+It is important to change the Lambda package version with each and everybuild so that CloudFormation can detect the change and update the Lambda function accordingly. Now create an archive of the Lambda function code and the installed dependencies:
 
 Current directory: `src/`
 `zip -r ./lambda-package-v1.0.0.zip ./*`
