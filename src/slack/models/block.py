@@ -1,3 +1,5 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 class Block:
 	##def __init__(self, type,  text=None, fields=None):
 	def __init__(self, type, **kwargs):
