@@ -1,3 +1,5 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 import json
 from slack_sdk.webhook import WebhookClient
 from slack.models import Block, Text, Field
