@@ -1,9 +1,9 @@
 # AWS Cost Anomaly Alerts
-The project is a plug and play solution to detect cost anomalies in your AWS accounts relying on the [AWS Cost Anomaly Detection](https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-alerts/architecture_dgm.png) feature in Cost Explorer and push to different channels. 
+The project is a plug and play solution to detect cost anomalies in your AWS accounts relying on the [AWS Cost Anomaly Detection](https://aws.amazon.com/aws-cost-management/aws-cost-anomaly-detection/) feature in Cost Explorer and push to different channels. 
 
 ### Solution Overview
 
-![alt text](https://github.com/ighanim/aws-cost-anomaly-alerts/blob/main/architecture-diagram-v1.1.png)
+![alt text](https://github.com/ighanim/aws-cost-anomaly-alerts/blob/main/architecture_dgm.png)
 
 ## Create Notification Channel Webhook
 You may create one or two distribution channels. 
