@@ -237,14 +237,14 @@ Resources:
     Properties:
       SubscriptionName: "CostAnomalySubscription"
       ThresholdExpression: !Sub '{ "Or": [{ "Dimensions": {"Key": "ANOMALY_TOTAL_IMPACT_PERCENTAGE", "MatchOptions": [ "GREATER_THAN_OR_EQUAL" ], "Values": [ "${costAnomalyTotalImpactPercentage}" ]}},{"Dimensions": {"Key": "ANOMALY_TOTAL_IMPACT_ABSOLUTE","MatchOptions": [ "GREATER_THAN_OR_EQUAL" ],"Values": [ "${costAnomalyTotalImpactAbsolute}" ]}}]}'
-      Frequency: DAILY
+      Frequency: IMMEDIATE
       MonitorArnList:
         - !Ref CostAnomalyMonitor
       Subscribers:
         [
           {
-            "Type": "EMAIL",
-            "Address": "name@example.com"
+            "Type": "SNS",
+            "Address": !Ref SnsTopicCostAnomaly
           }
         ]
     
