@@ -36,7 +36,7 @@ Current directory: `src/`
 
 Now, upload the Lambda package to the S3 bucket created in the first step. Use CLI, CloudFormation or API (as part of the build process) to upload the file. Here is a CLI sample command: 
 
-`aws s3 cp ./lambda-package-v1.0.0.zip S3://newly-created-bucket`
+`aws s3 cp ./lambda-package-v1.0.0.zip s3://newly-created-bucket`
 
 ### Deployment
 
