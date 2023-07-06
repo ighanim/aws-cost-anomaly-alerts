@@ -224,6 +224,29 @@ Resources:
       Tags: 
       - Key: Project
         Value: CostAnomalyAlerts
+  CostAnomalyMonitor:
+    Type: 'AWS::CE::AnomalyMonitor'
+    Condition: CreateServiceMonitor
+    Properties:
+      MonitorName: 'cost-anomaly-alerts-monitor'
+      MonitorType: 'DIMENSIONAL'
+      MonitorDimension: 'SERVICE'
+  AnomalySubscription:
+    Type: AWS::CE::AnomalySubscription
+    Condition: CreateServiceMonitor
+    Properties:
+      SubscriptionName: "CostAnomalySubscription"
+      ThresholdExpression: !Sub '{ "Or": [{ "Dimensions": {"Key": "ANOMALY_TOTAL_IMPACT_PERCENTAGE", "MatchOptions": [ "GREATER_THAN_OR_EQUAL" ], "Values": [ "${costAnomalyTotalImpactPercentage}" ]}},{"Dimensions": {"Key": "ANOMALY_TOTAL_IMPACT_ABSOLUTE","MatchOptions": [ "GREATER_THAN_OR_EQUAL" ],"Values": [ "${costAnomalyTotalImpactAbsolute}" ]}}]}'
+      Frequency: IMMEDIATE
+      MonitorArnList:
+        - !Ref CostAnomalyMonitor
+      Subscribers:
+        [
+          {
+            "Type": "SNS",
+            "Address": !Ref SnsTopicCostAnomaly
+          }
+        ]
     
 #| Parameter       | Type   | Description                                                                                               |
 #|-----------------|--------|-----------------------------------------------------------------------------------------------------------|
@@ -232,9 +255,6 @@ Resources:
 #| slackWebhookURL | String | Slack channel webhook URL. If you don't have one already, check https://api.slack.com/messaging/webhooks. |
 
 Parameters:
-  s3Bucket:
-    Type: String
-    Description: S3 Bucket where your Lambda functions and StepFunctions state machines    are stored.
   codePackage:
     Type: String
     Description: S3 key for the Lambda Code. 
@@ -251,10 +271,32 @@ Parameters:
       - true
       - false
     Description: Select whether to display Account Name in the Notification or not. This will require special permissions for the Lambda function to access the Organisations API.
+  s3Bucket:
+    Type: String
+    Description: S3 Bucket where your Lambda functions and StepFunctions state machines are stored.
+  costAnomalyTotalImpactAbsolute:
+    Type: String
+    Description:  creates a subscription using a percentage-based threshold and absolute threshold combined with OR, Absolute threshold
+    Default: "1000"
+  costAnomalyTotalImpactPercentage:
+    Type: String
+    Description: A percentage-based threshold
+    Default: "40"
+  ShouldCreateServiceMonitorInputParameter:
+    Type: String 
+    Description: "If true then the Service Monitor will be created with the CloudFormation stack."
+    AllowedValues:
+      - True
+      - False
+
+
 
 Conditions:
   displayAccountNameEnabled: !Equals 
     - !Ref FeatureFlagDisplayAccountName
+    - true
+  CreateServiceMonitor: !Equals 
+    - !Ref ShouldCreateServiceMonitorInputParameter
     - true
 
 Outputs:
