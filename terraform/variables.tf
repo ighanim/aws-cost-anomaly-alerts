@@ -7,7 +7,7 @@ variable "code_package" {
 variable "default_slack_webhook_url" {
   description = "Default Slack Webhook URL."
   type        = string
-  default     = "https://hooks.slack.com/services/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"
+  default     = "https://hooks.slack.com/"
 }
 
 variable "default_teams_webhook_url" {
