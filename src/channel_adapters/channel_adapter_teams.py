@@ -1,3 +1,5 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 import json
 from teams.models import fact, factSet, textBlock
 from teams.webhook import WebhookClient

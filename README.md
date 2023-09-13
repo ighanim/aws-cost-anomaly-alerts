@@ -3,7 +3,7 @@ The project is a plug and play solution to detect cost anomalies in your AWS acc
 
 ### Solution Overview
 
-![alt text](https://github.com/ighanim/aws-cost-anomaly-detection-slack-integration/blob/main/images/architecture-diagram-v1.1.png)
+![alt text](./architecture_dgm.jpeg)
 
 ## Create Notification Channel Webhook
 You may create one or two distribution channels. 
@@ -24,14 +24,19 @@ Second, create an S3 bucket to store your build artifacts -- Lambda code and Clo
 
 ### Build
 
-Third, build/package the Lambda function Python code using `zip`. For more information on the process; see [Python package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html). On your local machine or build server, run the following command. It is important to change the Lambda package version with each and everybuild so that CloudFormation can detect the change and update the Lambda function accordingly. 
+Third, build/package the Lambda function Python code using `zip`. For more information on the process; see [Python package](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html). 
+
+On your local machine or build server, install third party dependencies by using the following command:
+`pip install -r requirements.txt --target src/`
+
+It is important to change the Lambda package version with each and everybuild so that CloudFormation can detect the change and update the Lambda function accordingly. Now create an archive of the Lambda function code and the installed dependencies:
 
 Current directory: `src/`
 `zip -r ./lambda-package-v1.0.0.zip ./*`
 
 Now, upload the Lambda package to the S3 bucket created in the first step. Use CLI, CloudFormation or API (as part of the build process) to upload the file. Here is a CLI sample command: 
 
-`aws s3 cp ./lambda-package-v1.0.0.zip S3://newly-created-bucket`
+`aws s3 cp ./lambda-package-v1.0.0.zip s3://newly-created-bucket`
 
 ### Deployment
 
