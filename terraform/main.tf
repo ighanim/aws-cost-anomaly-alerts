@@ -5,7 +5,7 @@ provider "aws" {
 data "archive_file" "lambda" {
   type        = "zip"
   source_dir  = "${path.module}/../src"
-  output_path = "${path.module}/lambda-package-v1.0.0.zip"
+  output_path = "${path.module}/../lambda-package-v1.0.0.zip"
 }
 
 data "aws_region" "current" {}

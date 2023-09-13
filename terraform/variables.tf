@@ -1,19 +1,13 @@
-variable "code_package" {
-  description = "S3 key for the Lambda Code."
-  type        = string
-  default     = "costaaaaa"
-}
-
 variable "default_slack_webhook_url" {
   description = "Default Slack Webhook URL."
   type        = string
-  default     = "https://hooks.slack.com/"
+  default     = "{your_workspace_webhook_url}"
 }
 
 variable "default_teams_webhook_url" {
   description = "Default Teams Webhook URL."
   type        = string
-  default     = "https://teams"
+  default     = "{your_ms_teams_webhook_url}"
 
 }
 
@@ -32,12 +26,12 @@ variable "create_service_monitor" {
 variable "costAnomalyTotalImpactAbsolute" {
   description = "Absolute threshold for cost anomaly subscription."
   type        = string
-  default     = "1"
+  default     = "100"
 }
 
 variable "costAnomalyTotalImpactPercentage" {
   description = "Percentage-based threshold for cost anomaly subscription."
   type        = string
-  default     = "1"
+  default     = "40"
 }
 

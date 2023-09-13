@@ -1,7 +1,8 @@
 resource "aws_lambda_function" "CostAnomalyAlertsLambda" {
   description = "Lambda Function to Send Cost Anomaly Alerts to different channels"
-  filename      = "${path.module}/lambda-package-v1.0.0.zip"
-  function_name = "CostAnomalyAlertsLambda"
+  filename      = "${path.module}/../lambda-package-v1.0.0.zip"
+  //filename      = "${path.module}/lambda-package-v1.0.0.zip"
+  function_name = "CostAnomalyAlertsLambdaFunction"
   role          = aws_iam_role.CostAnomalyAlertsLambdaRole.arn
   handler       = "lambda_function.lambda_handler"
   runtime     = "python3.7"
@@ -11,7 +12,8 @@ resource "aws_lambda_function" "CostAnomalyAlertsLambda" {
   publish = true
   
   tags = {
-    Project = "CostAnomalyAlerts"
+    Project = "CostAnomalyAlerts",
+    auto-delete = "no"
   }
 }
 
