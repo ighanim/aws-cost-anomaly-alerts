@@ -32,11 +32,14 @@ class EventConstructor:
         for rootCause in event["rootCauses"]:
             rootCauseAttributeList = []
             for rootCauseAttribute in rootCause:
-        	    if feature_flag_displayAccountName == True:
-        	        if rootCauseAttribute == "linkedAccount":
-        	            accountName = AwsAccountDetails(rootCause[rootCauseAttribute]).get_aws_account_name()
-        	            rootCauseAttributeList.append(AnomalyRootCauseAttribute("accountName", accountName).__dict__)
-        	    rootCauseAttributeList.append(AnomalyRootCauseAttribute(rootCauseAttribute,rootCause[rootCauseAttribute]).__dict__)
+                value = rootCause[rootCauseAttribute]
+                if value is None:
+                    continue
+                if feature_flag_displayAccountName == True:
+                    if rootCauseAttribute == "linkedAccount":
+                        accountName = AwsAccountDetails(value).get_aws_account_name()
+                        rootCauseAttributeList.append(AnomalyRootCauseAttribute("accountName", accountName).__dict__)
+                rootCauseAttributeList.append(AnomalyRootCauseAttribute(rootCauseAttribute, value).__dict__)
             rootCauseList.append(AnomalyRootCause(rootCauseAttributeList))
         
         ob_anomaly_event = AnomalyEvent(anomalyStartDate, anomalyEndDate, anomalyTotalImpact, anomalyDetailsLink, [ob.__dict__ for ob in rootCauseList])

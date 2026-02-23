@@ -32,7 +32,10 @@ class SlackNotification:
         for rootCause in anomalyEvent.anomalyRootCauses:
             fields = []
             for rootCauseAttribute in rootCause["anomalyRootCauseAttributes"]:
-        	    fields.append(Field("plain_text", rootCauseAttribute["rootCauseAttributeName"]  + " : " + rootCauseAttribute["rootCauseAttributeValue"], False).__dict__)
+                value = rootCauseAttribute["rootCauseAttributeValue"]
+                if isinstance(value, dict):
+                    value = str(value)
+                fields.append(Field("plain_text", rootCauseAttribute["rootCauseAttributeName"]  + " : " + value, False).__dict__)
             blocks.append(Block("section", fields=fields))
         	    
         slack_message = [ob.__dict__ for ob in blocks]
